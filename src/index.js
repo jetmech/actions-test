@@ -1,0 +1,1 @@
+const theMeaning = 42;
