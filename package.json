@@ -1,6 +1,6 @@
 {
   "name": "@jetmech/actions-test",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Repo to test GitHub actions",
   "main": "index.js",
   "scripts": {
