@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/jetmech/actions-test/issues"
   },
-  "homepage": "https://github.com/jetmech/actions-test#readme"
+  "homepage": "https://github.com/jetmech/actions-test#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
 }
