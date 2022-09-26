@@ -2,4 +2,4 @@ name: "Check semver"
 description: "Check semver and compare to PR target"
 runs:
   using: "node16"
-  main: "dist/main.js"
+  main: "dist/index.js"
