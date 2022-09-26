@@ -27,4 +27,4 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Semver
-        uses: "./.github/actions/semver-check"
+        uses: ./.github/actions/semver-check
