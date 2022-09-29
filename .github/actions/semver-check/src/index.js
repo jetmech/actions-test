@@ -12,6 +12,8 @@ async function run() {
 
   // Get the label of the pr
 
+  delete process.env.GITHUB_WORKSPACE;
+
   const { GITHUB_WORKSPACE } = process.env;
 
   if (!GITHUB_WORKSPACE) {
