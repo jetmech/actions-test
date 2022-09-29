@@ -36,11 +36,11 @@ async function run() {
 
   try {
     // Get semver info from the base branch
-    const proposedSemver = await getSemver();
-
-    await exec.exec(`git checkout main`);
-
     const baseSemver = await getSemver();
+
+    await exec.exec(`git checkout ${context.sha}`);
+
+    const proposedSemver = await getSemver();
 
     core.info(`The proposed semver is ${proposedSemver}`);
     core.info(`The base semver is ${baseSemver}`);
