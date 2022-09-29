@@ -1,20 +1,22 @@
 const github = require("@actions/github");
 const core = require("@actions/core");
 const fs = require("fs").promises;
-
-const readFile = (path) => fs.readFile(path, "utf-8");
+const path = require("path");
+const exec = require("@actions/exec");
 
 const context = github.context;
+const { GITHUB_WORKSPACE } = process.env;
+const getSemver = () =>
+  fs
+    .readFile(path.join(GITHUB_WORKSPACE, "package.json"), "utf-8")
+    .then((package) => JSON.parse(package))
+    .then((parsedPackage) => parsedPackage.version);
 
 async function run() {
   // Maybe check the event to see if it a push to main?
   // If so, then check semver. Tag and push tags only if changed.
 
   // Get the label of the pr
-
-  delete process.env.GITHUB_WORKSPACE;
-
-  const { GITHUB_WORKSPACE } = process.env;
 
   if (!GITHUB_WORKSPACE) {
     core.error("The repository has not been checked out.");
@@ -26,25 +28,22 @@ async function run() {
     return;
   }
 
-  // Get semver info from the base branch
+  // const labels = context.payload.pull_request?.labels;
 
-  // Get semver info from this branch
-  core.info(`The event is ${context.eventName}`);
-  if (typeof context === "object") {
-    core.info("Here are the context keys:");
-    Object.keys(context).forEach((key) => core.info(key));
-  }
+  // if (Array.isArray(labels)) {
+  //   core.info(labels.map((label) => `  - ${label.name}`).join("\n"));
+  // }
 
-  const labels = context.payload.pull_request?.labels;
-  core.info("The pull request has the following labels:");
-
-  if (Array.isArray(labels)) {
-    core.info(labels.map((label) => `  - ${label.name}`).join("\n"));
-  }
-
-  Object.keys(github).forEach((key) => core.info(key));
   try {
-    core.debug(new Date().toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
+    // Get semver info from the base branch
+    const proposedSemver = await getSemver();
+
+    await exec.exec(`cd ${GITHUB_WORKSPACE} git checkout main`);
+
+    const baseSemver = await getSemver();
+
+    core.info(`The proposed semver is ${proposedSemver}`);
+    core.info(`The base semver is ${baseSemver}`);
   } catch (error) {
     core.setFailed(error.message);
   }
