@@ -9691,7 +9691,7 @@ async function run() {
   core.info("The pull request has the following labels");
 
   if (Array.isArray(labels)) {
-    core.info(labels.map((label) => `- ${label}`).join("\n"));
+    core.info(labels.map((label) => `- ${label.name}`).join("\n"));
   }
 
   Object.keys(github).forEach((key) => core.info(key));
