@@ -10996,7 +10996,7 @@ async function run() {
     // Get semver info from the base branch
     const proposedSemver = await getSemver();
 
-    await exec.exec(`cd ${GITHUB_WORKSPACE} git checkout main`);
+    await exec.exec(`git checkout main`);
 
     const baseSemver = await getSemver();
 
