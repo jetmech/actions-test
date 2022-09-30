@@ -42,8 +42,8 @@ async function run() {
 
     const proposedSemver = await getSemver();
 
-    core.info(`The proposed semver is ${proposedSemver}`);
-    core.info(`The base semver is ${baseSemver}`);
+    core.info(`The proposed package version is ${proposedSemver}`);
+    core.info(`The base package version is ${baseSemver}`);
   } catch (error) {
     core.setFailed(error.message);
   }

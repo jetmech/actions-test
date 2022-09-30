@@ -1,4 +1,9 @@
-const allowedLabels = ["minor", "major", "patch"];
+const allowedLabels = [
+  "Version: Minor",
+  "Version: Major",
+  "Version: Patch",
+  "Version: No Change",
+];
 
 const hasOnlyOneSemverLabel = (labels) => {
   let labelCount = labels.reduce((labelCount, label) => {
@@ -15,7 +20,7 @@ const hasOnlyOneSemverLabel = (labels) => {
 const getLabelNames = (context) =>
   context.payload.pull_request?.labels.map((label) => label.name);
 
-const getSemverLabel = (labels) => {
+const getSemverFromLabels = (labels) => {
   for (const label of labels) {
     if (allowedLabels.includes(label)) {
       return label;
@@ -26,5 +31,5 @@ const getSemverLabel = (labels) => {
 module.exports = {
   hasOnlyOneSemverLabel,
   getLabelNames,
-  getSemverLabel,
+  getSemverLabel: getSemverFromLabels,
 };
