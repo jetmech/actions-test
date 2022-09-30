@@ -10755,6 +10755,64 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 3319:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const fs = (__nccwpck_require__(7147).promises);
+const path = __nccwpck_require__(1017);
+
+const { GITHUB_WORKSPACE } = process.env;
+
+const getSemver = () =>
+  fs
+    .readFile(path.join(GITHUB_WORKSPACE, "package.json"), "utf-8")
+    .then((package) => JSON.parse(package))
+    .then((parsedPackage) => parsedPackage.version);
+
+module.exports = {
+  getSemver,
+};
+
+
+/***/ }),
+
+/***/ 2745:
+/***/ ((module) => {
+
+const allowedLabels = ["minor", "major", "patch"];
+
+const hasOnlyOneSemverLabel = (labels) => {
+  let labelCount = labels.reduce((labelCount, label) => {
+    if (allowedLabels.includes(label)) {
+      return labelCount++;
+    } else {
+      return labelCount;
+    }
+  }, 0);
+
+  return labelCount === 1;
+};
+
+const getLabelNames = (context) =>
+  context.payload.pull_request?.labels.map((label) => label.name);
+
+const getSemverLabel = (labels) => {
+  for (const label of labels) {
+    if (allowedLabels.includes(label)) {
+      return label;
+    }
+  }
+};
+
+module.exports = {
+  hasOnlyOneSemverLabel,
+  getLabelNames,
+  getSemverLabel,
+};
+
+
+/***/ }),
+
 /***/ 2877:
 /***/ ((module) => {
 
@@ -10958,23 +11016,20 @@ var __webpack_exports__ = {};
 (() => {
 const github = __nccwpck_require__(5438);
 const core = __nccwpck_require__(2186);
-const fs = (__nccwpck_require__(7147).promises);
-const path = __nccwpck_require__(1017);
 const exec = __nccwpck_require__(1514);
+const {
+  getLabelNames,
+  hasOnlyOneSemverLabel,
+  getSemverLabel,
+} = __nccwpck_require__(2745);
+const { getSemver } = __nccwpck_require__(3319);
 
 const context = github.context;
 const { GITHUB_WORKSPACE } = process.env;
-const getSemver = () =>
-  fs
-    .readFile(path.join(GITHUB_WORKSPACE, "package.json"), "utf-8")
-    .then((package) => JSON.parse(package))
-    .then((parsedPackage) => parsedPackage.version);
 
 async function run() {
   // Maybe check the event to see if it a push to main?
   // If so, then check semver. Tag and push tags only if changed.
-
-  // Get the label of the pr
 
   if (!GITHUB_WORKSPACE) {
     core.error("The repository has not been checked out.");
@@ -10986,17 +11041,20 @@ async function run() {
     return;
   }
 
-  // const labels = context.payload.pull_request?.labels;
-
-  // if (Array.isArray(labels)) {
-  //   core.info(labels.map((label) => `  - ${label.name}`).join("\n"));
-  // }
-
   try {
+    const pullRequestLabels = getLabelNames(context);
+
+    if (!hasOnlyOneSemverLabel(pullRequestLabels)) {
+      core.setFailed("The pull request requires exactly one semver label.");
+      return;
+    }
+
+    const semverLabel = getSemverLabel(pullRequestLabels);
+
     // Get semver info from the base branch
     const baseSemver = await getSemver();
 
-    await exec.exec(`git checkout ${context.sha}`);
+    await exec.exec(`git checkout -q ${context.sha}`);
 
     const proposedSemver = await getSemver();
 

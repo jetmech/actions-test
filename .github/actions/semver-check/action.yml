@@ -1,5 +1,5 @@
 name: "Check semver"
-description: "Check semver and compare to PR target"
+description: "Check semver and compare to PR target. Sync main branch tag with package.json version."
 runs:
   using: "node16"
   main: "dist/index.js"

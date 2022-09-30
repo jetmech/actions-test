@@ -1,22 +1,19 @@
 const github = require("@actions/github");
 const core = require("@actions/core");
-const fs = require("fs").promises;
-const path = require("path");
 const exec = require("@actions/exec");
+const {
+  getLabelNames,
+  hasOnlyOneSemverLabel,
+  getSemverLabel,
+} = require("./labelHelpers");
+const { getSemver } = require("./getSemver");
 
 const context = github.context;
 const { GITHUB_WORKSPACE } = process.env;
-const getSemver = () =>
-  fs
-    .readFile(path.join(GITHUB_WORKSPACE, "package.json"), "utf-8")
-    .then((package) => JSON.parse(package))
-    .then((parsedPackage) => parsedPackage.version);
 
 async function run() {
   // Maybe check the event to see if it a push to main?
   // If so, then check semver. Tag and push tags only if changed.
-
-  // Get the label of the pr
 
   if (!GITHUB_WORKSPACE) {
     core.error("The repository has not been checked out.");
@@ -28,17 +25,20 @@ async function run() {
     return;
   }
 
-  // const labels = context.payload.pull_request?.labels;
-
-  // if (Array.isArray(labels)) {
-  //   core.info(labels.map((label) => `  - ${label.name}`).join("\n"));
-  // }
-
   try {
+    const pullRequestLabels = getLabelNames(context);
+
+    if (!hasOnlyOneSemverLabel(pullRequestLabels)) {
+      core.setFailed("The pull request requires exactly one semver label.");
+      return;
+    }
+
+    const semverLabel = getSemverLabel(pullRequestLabels);
+
     // Get semver info from the base branch
     const baseSemver = await getSemver();
 
-    await exec.exec(`git checkout ${context.sha}`);
+    await exec.exec(`git checkout -q ${context.sha}`);
 
     const proposedSemver = await getSemver();
 
