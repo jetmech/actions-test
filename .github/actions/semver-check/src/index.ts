@@ -1,10 +1,9 @@
 import * as github from "@actions/github";
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
-import semver from "semver";
 import {
   getLabelNames,
-  hasOnlyOneSemverLabel,
+  hasOnlyOneReleaseTypeLabel,
   getSemverFromLabels,
 } from "./labelHelpers";
 import { getSemverFromPackageDotJSON } from "./semverHelpers";
@@ -33,7 +32,7 @@ async function run() {
       return;
     }
 
-    if (!hasOnlyOneSemverLabel(pullRequestLabels)) {
+    if (!hasOnlyOneReleaseTypeLabel(pullRequestLabels)) {
       core.setFailed("The pull request requires exactly one semver label.");
       return;
     }
@@ -46,21 +45,6 @@ async function run() {
     await exec.exec(`git checkout -q ${context.sha}`);
 
     const proposedSemver = await getSemverFromPackageDotJSON(GITHUB_WORKSPACE);
-
-    if (semverLabel === "no change") {
-      if (baseSemver !== proposedSemver) {
-        core.error(`The sever label is: ${semverLabel}`);
-        core.setFailed(
-          `The base version: ${baseSemver} should equal the proposed version: ${proposedSemver}`
-        );
-        return;
-      } else {
-        core.info(":white_check_mark: No version change detected.");
-        return;
-      }
-    }
-
-    const calculatedSemver = semver.inc(baseSemver, semverLabel);
 
     core.info(`The proposed package version is ${proposedSemver}`);
     core.info(`The base package version is ${baseSemver}`);

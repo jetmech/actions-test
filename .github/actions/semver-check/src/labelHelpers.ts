@@ -1,29 +1,54 @@
 import { Context } from "@actions/github/lib/context";
 import { Label } from "@octokit/webhooks-types";
+import { ReleaseType } from "semver";
 
-const allowedVersions = ["patch", "minor", "major", "no change"] as const;
-const allowedLabels = allowedVersions.map((version) => `version: ${version}`);
+type AllowedReleaseTypes = (ReleaseType | "no change")[];
 
-export type SemverVersion = typeof allowedVersions[number];
+type ReleaseAndPrereleaseId = [ReleaseTypeLabels, string];
 
-function isApprovedVesrion(version: string): version is SemverVersion {
-  return allowedVersions.includes(version as SemverVersion);
+const allowedReleaseTypes: AllowedReleaseTypes = [
+  "patch",
+  "minor",
+  "major",
+  "prepatch",
+  "preminor",
+  "premajor",
+  "prerelease",
+  "no change",
+];
+const allowedLabels = allowedReleaseTypes.map(
+  (version) => `version: ${version}`
+);
+
+const re = new RegExp(`version: ${allowedReleaseTypes.join("|")} ?(\w+)`, "i");
+
+export type ReleaseTypeLabels = typeof allowedReleaseTypes[number];
+
+function isApprovedReleaseType(
+  releaseType: string
+): releaseType is ReleaseTypeLabels {
+  return allowedReleaseTypes.includes(releaseType as ReleaseTypeLabels);
 }
 
 function isLabelArray(labels: unknown[]): labels is Label[] {
   return labels.every((label) => (label as Label).name !== undefined);
 }
 
-function extractSemver(label: string): SemverVersion {
-  const [, version] = label.split(/version: /i);
-  if (isApprovedVesrion(version)) {
+function extractReleaseType(label: string): ReleaseAndPrereleaseId {
+  const match = re.exec(label);
+  if (match === null) {
+    Error(`Unable to extract release type from label: ${label}`);
+  }
+
+  const [, version, prerelease] = match;
+  if (isApprovedReleaseType(version)) {
     return version;
   } else {
-    throw Error(`Unable to extract semver from label: ${label}`);
+    throw Error(`Unable to extract release type from label: ${label}`);
   }
 }
 
-export const hasOnlyOneSemverLabel = (labelNames: string[]) => {
+export const hasOnlyOneReleaseTypeLabel = (labelNames: string[]) => {
   let labelCount = labelNames.reduce((labelCount, label) => {
     if (allowedLabels.includes(label.toLocaleLowerCase())) {
       return labelCount++;
@@ -48,7 +73,7 @@ export const getLabelNames = (context: Context) => {
 export const getSemverFromLabels = (labels: string[]) => {
   for (const label of labels) {
     if (allowedLabels.includes(label)) {
-      return extractSemver(label);
+      return extractReleaseType(label);
     }
   }
 
