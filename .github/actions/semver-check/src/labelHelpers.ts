@@ -4,7 +4,7 @@ import { Label } from "@octokit/webhooks-types";
 const allowedVersions = ["patch", "minor", "major", "no change"] as const;
 const allowedLabels = allowedVersions.map((version) => `version: ${version}`);
 
-type SemverVersion = typeof allowedVersions[number];
+export type SemverVersion = typeof allowedVersions[number];
 
 function isApprovedVesrion(version: string): version is SemverVersion {
   return allowedVersions.includes(version as SemverVersion);

@@ -7,7 +7,7 @@ import {
   hasOnlyOneSemverLabel,
   getSemverFromLabels,
 } from "./labelHelpers";
-import { getSemverFromPackageDotJSON } from "./getSemver";
+import { getSemverFromPackageDotJSON } from "./semverHelpers";
 
 const context = github.context;
 const { GITHUB_WORKSPACE } = process.env;
