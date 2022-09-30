@@ -4,16 +4,23 @@ import { Label } from "@octokit/webhooks-types";
 const allowedVersions = ["patch", "minor", "major", "no change"] as const;
 const allowedLabels = allowedVersions.map((version) => `version: ${version}`);
 
-type SemverVersions = typeof allowedVersions[number];
+type SemverVersion = typeof allowedVersions[number];
 
-const labelVersionRegex = /version: /i;
-
-function getSemverFromLabel(label: string): SemverVersions {
-  return "foo";
+function isApprovedVesrion(version: string): version is SemverVersion {
+  return allowedVersions.includes(version as SemverVersion);
 }
 
 function isLabelArray(labels: unknown[]): labels is Label[] {
   return labels.every((label) => (label as Label).name !== undefined);
+}
+
+function extractSemver(label: string): SemverVersion {
+  const [, version] = label.split(/version: /i);
+  if (isApprovedVesrion(version)) {
+    return version;
+  } else {
+    throw new Error("Oh no!");
+  }
 }
 
 export const hasOnlyOneSemverLabel = (labelNames: string[]) => {
@@ -39,7 +46,7 @@ export const getLabelNames = (context: Context) => {
 export const getSemverFromLabels = (labels: string[]) => {
   for (const label of labels) {
     if (allowedLabels.includes(label)) {
-      return label;
+      return extractSemver(label);
     }
   }
 };
