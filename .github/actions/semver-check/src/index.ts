@@ -1,6 +1,6 @@
-const github = require("@actions/github");
-const core = require("@actions/core");
-const exec = require("@actions/exec");
+import * as github from "@actions/github";
+import * as core from "@actions/core";
+import * as exec from "@actions/exec";
 const {
   getLabelNames,
   hasOnlyOneSemverLabel,
@@ -16,12 +16,11 @@ async function run() {
   // If so, then check semver. Tag and push tags only if changed.
 
   if (!GITHUB_WORKSPACE) {
-    core.error("The repository has not been checked out.");
     core.error(
       "Ensure you have used actions/checkout to have access to the repository code"
     );
     core.error("Refer to https://github.com/actions/checkout");
-    core.setFailed();
+    core.setFailed("The repository has not been checked out.");
     return;
   }
 
@@ -45,7 +44,7 @@ async function run() {
     core.info(`The proposed package version is ${proposedSemver}`);
     core.info(`The base package version is ${baseSemver}`);
   } catch (error) {
-    core.setFailed(error.message);
+    if (error instanceof Error) core.setFailed(error.message);
   }
 }
 
