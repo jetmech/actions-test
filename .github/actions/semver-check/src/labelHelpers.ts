@@ -19,7 +19,7 @@ function extractSemver(label: string): SemverVersion {
   if (isApprovedVesrion(version)) {
     return version;
   } else {
-    throw new Error("Oh no!");
+    throw Error(`Unable to extract semver from label: ${label}`);
   }
 }
 
@@ -40,6 +40,8 @@ export const getLabelNames = (context: Context) => {
 
   if (isLabelArray(labels)) {
     return labels.map((label) => label.name);
+  } else {
+    throw Error("Pull request has no labels");
   }
 };
 
@@ -49,4 +51,6 @@ export const getSemverFromLabels = (labels: string[]) => {
       return extractSemver(label);
     }
   }
+
+  throw Error("No semver label found");
 };

@@ -1,18 +1,12 @@
-const fs = require("fs").promises;
-const path = require("path");
-
-const { GITHUB_WORKSPACE } = process.env;
+import path from "path";
+import { promises as fs } from "fs";
 
 type PackageDotJSON = {
   version: string;
 };
 
-const getSemver = () =>
+export const getSemverFromPackageDotJSON = (workspace: string) =>
   fs
-    .readFile(path.join(GITHUB_WORKSPACE, "package.json"), "utf-8")
+    .readFile(path.join(workspace, "package.json"), "utf-8")
     .then((projectPackage: string) => JSON.parse(projectPackage))
     .then((parsedPackage: PackageDotJSON) => parsedPackage.version);
-
-module.exports = {
-  getSemver,
-};
