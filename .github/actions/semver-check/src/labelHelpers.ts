@@ -47,7 +47,14 @@ function isLabelArray(labels: unknown[]): labels is Label[] {
   return labels.every((label) => (label as Label).name !== undefined);
 }
 
-export function extractReleaseType(label: string): ReleaseAndPrereleaseId {
+/**
+ * Extract the release type and prerelease id from the label.
+ * @param label
+ * @returns A tuple containing the release type and prerelease id (if provided).
+ */
+export function extractReleaseTypeFromLabel(
+  label: string
+): ReleaseAndPrereleaseId {
   const match = label.match(labelRegex);
 
   if (!match) {
@@ -103,7 +110,7 @@ export const getLabelNames = (context: Context) => {
 export const getSemverFromLabels = (labels: string[]) => {
   for (const label of labels) {
     if (allowedLabels.includes(label)) {
-      return extractReleaseType(label);
+      return extractReleaseTypeFromLabel(label);
     }
   }
 
