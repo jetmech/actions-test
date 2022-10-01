@@ -3,8 +3,7 @@ import { Label } from "@octokit/webhooks-types";
 import { ReleaseType } from "semver";
 
 type AllowedReleaseTypes = (ReleaseType | "no change")[];
-
-type ReleaseAndPrereleaseId = [ReleaseTypeLabels, string];
+export type ReleaseAndPrereleaseId = [ReleaseTypeLabel, string];
 
 const allowedReleaseTypes: AllowedReleaseTypes = [
   "patch",
@@ -16,16 +15,13 @@ const allowedReleaseTypes: AllowedReleaseTypes = [
   "prerelease",
   "no change",
 ];
-const allowedLabels = allowedReleaseTypes.map(
-  (version) => `version: ${version}`
-);
 
 const labelRegex = new RegExp(
   `version: ${allowedReleaseTypes.join("|")} ?(\w+)`,
   "i"
 );
 
-export type ReleaseTypeLabels = typeof allowedReleaseTypes[number];
+type ReleaseTypeLabel = typeof allowedReleaseTypes[number];
 
 /**
  * Typeguard. Determine if a string is an allowed release type.
@@ -34,8 +30,8 @@ export type ReleaseTypeLabels = typeof allowedReleaseTypes[number];
  */
 function isApprovedReleaseType(
   releaseType: string
-): releaseType is ReleaseTypeLabels {
-  return allowedReleaseTypes.includes(releaseType as ReleaseTypeLabels);
+): releaseType is ReleaseTypeLabel {
+  return allowedReleaseTypes.includes(releaseType as ReleaseTypeLabel);
 }
 
 /**
@@ -77,7 +73,7 @@ export function extractReleaseTypeFromLabel(
  */
 export const hasOnlyOneReleaseTypeLabel = (labelNames: string[]) => {
   let labelCount = labelNames.reduce((labelCount, label) => {
-    if (allowedLabels.includes(label.toLocaleLowerCase())) {
+    if (labelRegex.test(label)) {
       return labelCount++;
     } else {
       return labelCount;
@@ -109,7 +105,7 @@ export const getLabelNames = (context: Context) => {
  */
 export const getSemverFromLabels = (labels: string[]) => {
   for (const label of labels) {
-    if (allowedLabels.includes(label)) {
+    if (labelRegex.test(label)) {
       return extractReleaseTypeFromLabel(label);
     }
   }

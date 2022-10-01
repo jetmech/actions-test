@@ -6,7 +6,7 @@ import {
   hasOnlyOneReleaseTypeLabel,
   getSemverFromLabels,
 } from "./labelHelpers";
-import { getSemverFromPackageDotJSON } from "./semverHelpers";
+import { compareSemver, getSemverFromPackageDotJSON } from "./semverHelpers";
 
 const context = github.context;
 const { GITHUB_WORKSPACE } = process.env;
@@ -27,27 +27,21 @@ async function run() {
   try {
     const pullRequestLabels = getLabelNames(context);
 
-    if (!pullRequestLabels) {
-      core.setFailed("There were no labels found in this pull request");
-      return;
-    }
-
     if (!hasOnlyOneReleaseTypeLabel(pullRequestLabels)) {
-      core.setFailed("The pull request requires exactly one semver label.");
-      return;
+      throw Error("The pull request requires exactly one semver label.");
     }
 
     const semverLabel = getSemverFromLabels(pullRequestLabels);
 
-    // Get semver info from the base branch
     const baseSemver = await getSemverFromPackageDotJSON(GITHUB_WORKSPACE);
 
     await exec.exec(`git checkout -q ${context.sha}`);
 
     const proposedSemver = await getSemverFromPackageDotJSON(GITHUB_WORKSPACE);
 
-    core.info(`The proposed package version is ${proposedSemver}`);
-    core.info(`The base package version is ${baseSemver}`);
+    const result = compareSemver(baseSemver, proposedSemver, semverLabel);
+
+    core.info(result);
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message);
   }
