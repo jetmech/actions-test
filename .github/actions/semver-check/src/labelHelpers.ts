@@ -20,34 +20,54 @@ const allowedLabels = allowedReleaseTypes.map(
   (version) => `version: ${version}`
 );
 
-const re = new RegExp(`version: ${allowedReleaseTypes.join("|")} ?(\w+)`, "i");
+const labelRegex = new RegExp(
+  `version: ${allowedReleaseTypes.join("|")} ?(\w+)`,
+  "i"
+);
 
 export type ReleaseTypeLabels = typeof allowedReleaseTypes[number];
 
+/**
+ * Typeguard. Determine if a string is an allowed release type.
+ * @param releaseType A string to compare to the allowed release types.
+ * @returns True if the string is one of the allowed release types.
+ */
 function isApprovedReleaseType(
   releaseType: string
 ): releaseType is ReleaseTypeLabels {
   return allowedReleaseTypes.includes(releaseType as ReleaseTypeLabels);
 }
 
+/**
+ * Typeguard. Determine if an array is of label-like objects.
+ * @param labels An array of unknown objects.
+ * @returns True if each object has a 'name' property.
+ */
 function isLabelArray(labels: unknown[]): labels is Label[] {
   return labels.every((label) => (label as Label).name !== undefined);
 }
 
-function extractReleaseType(label: string): ReleaseAndPrereleaseId {
-  const match = re.exec(label);
-  if (match === null) {
-    Error(`Unable to extract release type from label: ${label}`);
+export function extractReleaseType(label: string): ReleaseAndPrereleaseId {
+  const match = label.match(labelRegex);
+
+  if (!match) {
+    throw Error("Oh no!");
   }
 
-  const [, version, prerelease] = match;
+  const [, version, prereleaseId] = match;
+
   if (isApprovedReleaseType(version)) {
-    return version;
+    return [version, prereleaseId];
   } else {
     throw Error(`Unable to extract release type from label: ${label}`);
   }
 }
 
+/**
+ * A helper to determine if the pull request has exactly one release type label.
+ * @param labelNames An array of pull request label names.
+ * @returns True if the array of pull request labels has only on release type label.
+ */
 export const hasOnlyOneReleaseTypeLabel = (labelNames: string[]) => {
   let labelCount = labelNames.reduce((labelCount, label) => {
     if (allowedLabels.includes(label.toLocaleLowerCase())) {
@@ -60,6 +80,11 @@ export const hasOnlyOneReleaseTypeLabel = (labelNames: string[]) => {
   return labelCount === 1;
 };
 
+/**
+ * Get an array of label names from the github context.
+ * @param context The github context.
+ * @returns An array of label names.
+ */
 export const getLabelNames = (context: Context) => {
   const labels = context.payload.pull_request?.labels;
 
@@ -70,6 +95,11 @@ export const getLabelNames = (context: Context) => {
   }
 };
 
+/**
+ * Get the release type and prerelease id from the pull request label.
+ * @param labels An array of labels from the pull request.
+ * @returns A tuple containing the release type and the prerelease id.
+ */
 export const getSemverFromLabels = (labels: string[]) => {
   for (const label of labels) {
     if (allowedLabels.includes(label)) {
