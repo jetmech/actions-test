@@ -4,7 +4,7 @@ import {
   getReleaseTypeFromLabels,
   getLabelNames,
   noReleaseLabelErrorMessage,
-} from "../src/labelHelpers";
+} from "../labelHelpers";
 
 const testLabels = ["Version: prepatch alpha", "foo", "bar", "baz"];
 
@@ -44,7 +44,7 @@ describe(".getReleaseTypeFromLabels()", () => {
     const expected = ["prepatch", "alpha"];
     expect(result).toEqual(expected);
   });
-  it("the second value of the ReleaseAndPrereleaseId tuple is undefined if no prerelease id is found in the label", () => {
+  it("the second value of the tuple is undefined if no prerelease id is in the label", () => {
     const testLabels = ["Version: patch"];
     const result = getReleaseTypeFromLabels(testLabels);
 

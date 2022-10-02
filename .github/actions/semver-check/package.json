@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prepare": "ncc build src/index.js -o dist --source-map --license licenses.txt",
+    "prepare": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
     "test": "jest",
     "watch": "nodemon --watch src --exec 'npm run prepare'"
   },

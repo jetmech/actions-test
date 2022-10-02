@@ -31,7 +31,7 @@ async function run() {
       throw Error("The pull request requires exactly one semver label.");
     }
 
-    const semverLabel = getReleaseTypeFromLabels(pullRequestLabels);
+    const releaseInfo = getReleaseTypeFromLabels(pullRequestLabels);
 
     const baseSemver = await getSemverFromPackageDotJSON(GITHUB_WORKSPACE);
 
@@ -39,7 +39,7 @@ async function run() {
 
     const proposedSemver = await getSemverFromPackageDotJSON(GITHUB_WORKSPACE);
 
-    const result = compareSemver(baseSemver, proposedSemver, semverLabel);
+    const result = compareSemver(baseSemver, proposedSemver, releaseInfo);
 
     core.info(result);
   } catch (error) {

@@ -20,10 +20,12 @@ export const getSemverFromPackageDotJSON = (workspace: string) =>
     .then((parsedPackage: PackageDotJSON) => parsedPackage.version);
 
 /**
- *
- * @param base The SemVer in the base branch of hte pull request.
+ * Compare the propose semantic version to the base branch semantic version
+ * based on the label in the pull request.
+ * @param base The SemVer in the base branch of the pull request.
  * @param proposed The SemVer proposed in this pull request.
  * @param releaseInfo A tuple containing the release type and the prerelease id.
+ * This should be provided by parsing the pull request label.
  * @returns A string describing the result of the comparison.
  */
 export function compareSemver(
