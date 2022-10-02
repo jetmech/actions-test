@@ -17,11 +17,11 @@ const allowedReleaseTypes: AllowedReleaseTypes = [
 ];
 
 const labelRegex = new RegExp(
-  `version: ${allowedReleaseTypes.join("|")} ?(\w+)`,
+  `version: (${allowedReleaseTypes.join("|")}) ?(\\w+)?`,
   "i"
 );
 
-type ReleaseTypeLabel = typeof allowedReleaseTypes[number];
+type ReleaseTypeLabel = AllowedReleaseTypes[number];
 
 /**
  * Typeguard. Determine if a string is an allowed release type.
@@ -67,14 +67,14 @@ export function extractReleaseTypeFromLabel(
 }
 
 /**
- * A helper to determine if the pull request has exactly one release type label.
+ * Determine if the pull request has exactly one release type label.
  * @param labelNames An array of pull request label names.
  * @returns True if the array of pull request labels has only on release type label.
  */
 export const hasOnlyOneReleaseTypeLabel = (labelNames: string[]) => {
   let labelCount = labelNames.reduce((labelCount, label) => {
     if (labelRegex.test(label)) {
-      return labelCount++;
+      return labelCount + 1;
     } else {
       return labelCount;
     }
@@ -103,7 +103,7 @@ export const getLabelNames = (context: Context) => {
  * @param labels An array of labels from the pull request.
  * @returns A tuple containing the release type and the prerelease id.
  */
-export const getSemverFromLabels = (labels: string[]) => {
+export const getReleaseTypeFromLabels = (labels: string[]) => {
   for (const label of labels) {
     if (labelRegex.test(label)) {
       return extractReleaseTypeFromLabel(label);

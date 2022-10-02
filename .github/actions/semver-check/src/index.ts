@@ -4,7 +4,7 @@ import * as exec from "@actions/exec";
 import {
   getLabelNames,
   hasOnlyOneReleaseTypeLabel,
-  getSemverFromLabels,
+  getReleaseTypeFromLabels,
 } from "./labelHelpers";
 import { compareSemver, getSemverFromPackageDotJSON } from "./semverHelpers";
 
@@ -31,7 +31,7 @@ async function run() {
       throw Error("The pull request requires exactly one semver label.");
     }
 
-    const semverLabel = getSemverFromLabels(pullRequestLabels);
+    const semverLabel = getReleaseTypeFromLabels(pullRequestLabels);
 
     const baseSemver = await getSemverFromPackageDotJSON(GITHUB_WORKSPACE);
 
