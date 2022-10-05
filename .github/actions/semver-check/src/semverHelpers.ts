@@ -3,7 +3,6 @@ import { promises as fs } from "fs";
 import { ReleaseAndPrereleaseId } from "./labelHelpers";
 import semver from "semver";
 import * as exec from "@actions/exec";
-import * as core from "@actions/core";
 
 type PackageDotJSON = {
   version: string;
@@ -15,7 +14,7 @@ type PackageDotJSON = {
  * @returns The package.json version.
  */
 export const getSemVerFromPackageDotJSON = (ref: string = "") => {
-  let stdout: string;
+  let stdout: string = "";
   const options: exec.ExecOptions = {
     listeners: {
       stdout(data) {
@@ -25,10 +24,7 @@ export const getSemVerFromPackageDotJSON = (ref: string = "") => {
   };
   return exec
     .exec(`git show ${ref}:package.json`, undefined, options)
-    .then(() => {
-      core.info(`stdout is ${stdout}`);
-      return JSON.parse(stdout);
-    })
+    .then(() => JSON.parse(stdout))
     .then((parsedPackage: PackageDotJSON) => parsedPackage.version);
 };
 

@@ -14082,14 +14082,13 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.compareSemver = exports.getSemVerFromPackageDotJSON = void 0;
 const semver_1 = __importDefault(__nccwpck_require__(1383));
 const exec = __importStar(__nccwpck_require__(1514));
-const core = __importStar(__nccwpck_require__(2186));
 /**
  * Get the package.json version from a git ref.
  * @param ref The git ref to read the package.json from.
  * @returns The package.json version.
  */
 const getSemVerFromPackageDotJSON = (ref = "") => {
-    let stdout;
+    let stdout = "";
     const options = {
         listeners: {
             stdout(data) {
@@ -14099,10 +14098,7 @@ const getSemVerFromPackageDotJSON = (ref = "") => {
     };
     return exec
         .exec(`git show ${ref}:package.json`, undefined, options)
-        .then(() => {
-        core.info(`stdout is ${stdout}`);
-        return JSON.parse(stdout);
-    })
+        .then(() => JSON.parse(stdout))
         .then((parsedPackage) => parsedPackage.version);
 };
 exports.getSemVerFromPackageDotJSON = getSemVerFromPackageDotJSON;
