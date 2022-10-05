@@ -118,8 +118,9 @@ export const getReleaseTypeFromLabels = (
     const match = label.match(labelRegex);
     if (match) {
       const [, releaseType, prereleaseId] = match;
-      if (isApprovedReleaseType(releaseType)) {
-        return [releaseType, prereleaseId];
+      const lowerCaseReleaseType = releaseType.toLowerCase();
+      if (isApprovedReleaseType(lowerCaseReleaseType)) {
+        return [lowerCaseReleaseType, prereleaseId];
       }
     }
   }

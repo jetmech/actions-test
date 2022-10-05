@@ -6,7 +6,7 @@ import {
   noReleaseLabelErrorMessage,
 } from "../labelHelpers";
 
-const testLabels = ["Version: prepatch alpha", "foo", "bar", "baz"];
+const testLabels = ["Version: no change", "foo", "bar", "baz"];
 
 type LabeLike = { name: string };
 
@@ -41,7 +41,15 @@ describe(".getReleaseTypeFromLabels()", () => {
   it("extracts the release type and prerelease id as tuple [ReleaseType, prereleaseId]", () => {
     const result = getReleaseTypeFromLabels(testLabels);
 
-    const expected = ["prepatch", "alpha"];
+    const expected = ["no change", undefined];
+    expect(result).toEqual(expected);
+  });
+  it("handles labels with upper and lower case letters", () => {
+    const upperCase = testLabels.map((label) => label.toUpperCase());
+
+    const result = getReleaseTypeFromLabels(upperCase);
+
+    const expected = ["no change", undefined];
     expect(result).toEqual(expected);
   });
   it("the second value of the tuple is undefined if no prerelease id is in the label", () => {
