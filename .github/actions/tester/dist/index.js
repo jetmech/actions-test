@@ -9531,7 +9531,6 @@ const core = __importStar(__nccwpck_require__(2186));
 const createListFromObjectKeys = (obj) => Object.keys(obj)
     .map((key) => `- ${key}`)
     .join("\n");
-const getKeys = (obj) => Object.keys(obj).map((key) => `- ${key}`);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -9541,10 +9540,10 @@ function run() {
             core.info(createListFromObjectKeys(github.context));
             core.summary
                 .addHeading("The following are environment variables:", 2)
-                .addList(getKeys(process.env))
+                .addList(Object.keys(process.env))
                 .addBreak()
                 .addHeading("The following are available on the github context:", 2)
-                .addList(getKeys(github.context))
+                .addList(Object.keys(github.context))
                 .write();
         }
         catch (error) {
