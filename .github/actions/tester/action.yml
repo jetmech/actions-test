@@ -1,0 +1,5 @@
+name: "Test actions"
+description: "Utility to see what keys and objects are available in an action."
+runs:
+  using: "node16"
+  main: "dist/index.js"
