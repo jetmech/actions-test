@@ -2,22 +2,31 @@ import path from "path";
 import { promises as fs } from "fs";
 import { ReleaseAndPrereleaseId } from "./labelHelpers";
 import semver from "semver";
-import * as core from "@actions/core";
+import * as exec from "@actions/exec";
 
 type PackageDotJSON = {
   version: string;
 };
 
 /**
- * Get the package.json version from a checked out repository.
- * @param workspace The workspace that contains the repository code.
+ * Get the package.json version from a git ref.
+ * @param ref The git ref to read the package.json from.
  * @returns The package.json version.
  */
-export const getSemverFromPackageDotJSON = (workspace: string) =>
-  fs
-    .readFile(path.join(workspace, "package.json"), "utf-8")
-    .then((projectPackage: string) => JSON.parse(projectPackage))
+export const getSemVerFromPackageDotJSON = (ref: string = "") => {
+  let stdout: string;
+  const options: exec.ExecOptions = {
+    listeners: {
+      stdout(data) {
+        stdout += data.toString();
+      },
+    },
+  };
+  return exec
+    .exec(`git show ${ref}:package.json`, undefined, options)
+    .then(() => JSON.parse(stdout))
     .then((parsedPackage: PackageDotJSON) => parsedPackage.version);
+};
 
 /**
  * Compare the propose semantic version to the base branch semantic version

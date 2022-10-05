@@ -6,7 +6,7 @@ import {
   hasOnlyOneReleaseTypeLabel,
   getReleaseTypeFromLabels,
 } from "./labelHelpers";
-import { compareSemver, getSemverFromPackageDotJSON } from "./semverHelpers";
+import { compareSemver, getSemVerFromPackageDotJSON } from "./semverHelpers";
 
 const context = github.context;
 const { GITHUB_WORKSPACE } = process.env;
@@ -33,11 +33,8 @@ async function run() {
 
     const releaseInfo = getReleaseTypeFromLabels(pullRequestLabels);
 
-    const baseSemver = await getSemverFromPackageDotJSON(GITHUB_WORKSPACE);
-
-    await exec.exec(`git checkout -q ${context.sha}`);
-
-    const proposedSemver = await getSemverFromPackageDotJSON(GITHUB_WORKSPACE);
+    const baseSemver = await getSemVerFromPackageDotJSON();
+    const proposedSemver = await getSemVerFromPackageDotJSON(context.sha);
 
     const result = compareSemver(baseSemver, proposedSemver, releaseInfo);
 
