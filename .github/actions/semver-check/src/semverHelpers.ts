@@ -1,5 +1,3 @@
-import path from "path";
-import { promises as fs } from "fs";
 import { ReleaseAndPrereleaseId } from "./labelHelpers";
 import semver from "semver";
 import * as exec from "@actions/exec";
@@ -16,6 +14,7 @@ type PackageDotJSON = {
 export const getSemVerFromPackageDotJSON = (ref: string = "") => {
   let stdout: string = "";
   const options: exec.ExecOptions = {
+    silent: true,
     listeners: {
       stdout(data) {
         stdout += data.toString();
@@ -46,10 +45,10 @@ export function compareSemver(
   if (release === "no change") {
     if (base !== proposed) {
       throw Error(
-        `The base version: ${base} should equal the proposed version: ${proposed}`
+        `The base version (${base}) should equal the proposed version (${proposed}).`
       );
     } else {
-      return ":white_check_mark: No version change detected.";
+      return "No version change detected.";
     }
   }
 
@@ -57,9 +56,9 @@ export function compareSemver(
 
   if (calculatedSemver !== proposed) {
     throw new Error(
-      `The proposed version ${proposed} does not match the calculated version ${calculatedSemver}.`
+      `The proposed version (${proposed}) does not match the calculated version (${calculatedSemver}).`
     );
   } else {
-    return `:white_check_mark: The proposed version ${proposed} matches the calculated version ${calculatedSemver}.`;
+    return `The proposed version (${proposed}) matches the calculated version.`;
   }
 }

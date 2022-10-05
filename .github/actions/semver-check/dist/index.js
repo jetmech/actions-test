@@ -14090,6 +14090,7 @@ const exec = __importStar(__nccwpck_require__(1514));
 const getSemVerFromPackageDotJSON = (ref = "") => {
     let stdout = "";
     const options = {
+        silent: true,
         listeners: {
             stdout(data) {
                 stdout += data.toString();
@@ -14115,18 +14116,18 @@ function compareSemver(base, proposed, releaseInfo) {
     const [release, prereleaseId] = releaseInfo;
     if (release === "no change") {
         if (base !== proposed) {
-            throw Error(`The base version: ${base} should equal the proposed version: ${proposed}`);
+            throw Error(`The base version (${base}) should equal the proposed version (${proposed}).`);
         }
         else {
-            return ":white_check_mark: No version change detected.";
+            return "No version change detected.";
         }
     }
     const calculatedSemver = semver_1.default.inc(base, release, prereleaseId);
     if (calculatedSemver !== proposed) {
-        throw new Error(`The proposed version ${proposed} does not match the calculated version ${calculatedSemver}.`);
+        throw new Error(`The proposed version (${proposed}) does not match the calculated version (${calculatedSemver}).`);
     }
     else {
-        return `:white_check_mark: The proposed version ${proposed} matches the calculated version ${calculatedSemver}.`;
+        return `The proposed version (${proposed}) matches the calculated version.`;
     }
 }
 exports.compareSemver = compareSemver;
