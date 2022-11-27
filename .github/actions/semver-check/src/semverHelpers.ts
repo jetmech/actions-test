@@ -40,7 +40,7 @@ export function compareSemver(
         `The base version: ${base} should equal the proposed version: ${proposed}`
       );
     } else {
-      return ":white_check_mark: No version change detected.";
+      return "No version change detected.";
     }
   }
 
@@ -48,9 +48,9 @@ export function compareSemver(
 
   if (calculatedSemver !== proposed) {
     throw new Error(
-      `The proposed version ${proposed} does not match the calculated version ${calculatedSemver}.`
+      `The proposed version (${proposed}) does not match the calculated version ${calculatedSemver}.`
     );
   } else {
-    return `:white_check_mark: The proposed version ${proposed} matches the calculated version ${calculatedSemver}.`;
+    return `The proposed version (${proposed}) matches the calculated version.`;
   }
 }
