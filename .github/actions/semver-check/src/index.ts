@@ -12,9 +12,6 @@ const context = github.context;
 const { GITHUB_WORKSPACE } = process.env;
 
 async function run() {
-  // Maybe check the event to see if it a push to main?
-  // If so, then check semver. Tag and push tags only if changed.
-
   if (!GITHUB_WORKSPACE) {
     core.error(
       "Ensure you have used actions/checkout to have access to the repository code"
