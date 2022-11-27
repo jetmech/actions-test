@@ -1,12 +1,10 @@
 import { compareSemver, getSemverFromPackageDotJSON } from "../semverHelpers";
-import * as exec from "@actions/exec";
 import { ReleaseAndPrereleaseId } from "../labelHelpers";
 import { promises as fs } from "fs";
+import semver, { ReleaseType } from "semver";
 
 describe(".getSemVerFromPackageDotJSON()", () => {
   it("returns the version of a package", async () => {
-    const spy = jest.spyOn(exec, "exec").mockResolvedValue(0);
-    // jest.spyOn(JSON, "parse").mockReturnValue({ version: "1.0.0" });
     jest.spyOn(fs, "readFile").mockResolvedValue(`{ "version": "1.0.0" }`);
 
     const result = await getSemverFromPackageDotJSON("foo");
@@ -39,30 +37,80 @@ describe(".compareSemver()", () => {
     });
   });
 
-  describe("when releaseInfo is ['minor', <string>]", () => {
-    it("returns the correct string when the proposed release type is correct", () => {
-      const base = "1.0.0";
-      const proposed = "1.1.0";
-      const realeaseInfo: ReleaseAndPrereleaseId = ["minor", undefined];
+  describe.each([
+    {
+      base: "1.0.0",
+      proposed: "1.0.1",
+      version: "patch",
+      prereleaseId: undefined,
+    },
+    {
+      base: "1.0.0",
+      proposed: "1.1.0",
+      version: "minor",
+      prereleaseId: undefined,
+    },
+    {
+      base: "1.0.0",
+      proposed: "2.0.0",
+      version: "major",
+      prereleaseId: undefined,
+    },
+    {
+      base: "1.0.0",
+      proposed: "1.0.1-alpha.0",
+      version: "prepatch",
+      prereleaseId: "alpha",
+    },
+    {
+      base: "1.0.0",
+      proposed: "1.1.0-alpha.0",
+      version: "preminor",
+      prereleaseId: "alpha",
+    },
+    {
+      base: "1.0.0",
+      proposed: "2.0.0-alpha.0",
+      version: "premajor",
+      prereleaseId: "alpha",
+    },
+    {
+      base: "2.0.0-alpha.0",
+      proposed: "2.0.0-alpha.1",
+      version: "prerelease",
+      prereleaseId: "alpha",
+    },
+  ])(
+    "when releaseInfo is ['$version', $prereleaseId]",
+    ({ base, proposed, version, prereleaseId }) => {
+      it("returns the correct string when the proposed release type is correct", () => {
+        const realeaseInfo: ReleaseAndPrereleaseId = [
+          version as ReleaseType,
+          prereleaseId,
+        ];
 
-      const result = compareSemver(base, proposed, realeaseInfo);
+        const result = compareSemver(base, proposed, realeaseInfo);
 
-      expect(result).toEqual(
-        "The proposed version (1.1.0) matches the calculated version."
-      );
-    });
-    it("throws an error when the proposed release type is not correct", () => {
-      const base = "1.0.0";
-      const proposed = "1.2.0";
-      const realeaseInfo: ReleaseAndPrereleaseId = ["minor", undefined];
+        expect(result).toEqual(
+          `The proposed version (${proposed}) matches the calculated version.`
+        );
+      });
+      it("throws an error when the proposed release type is not correct", () => {
+        const wrongProposed = semver.inc(proposed, version as ReleaseType);
+        const realeaseInfo: ReleaseAndPrereleaseId = ["minor", undefined];
 
-      const shouldThrow = () => {
-        compareSemver(base, proposed, realeaseInfo);
-      };
+        if (!wrongProposed) {
+          throw Error("semver.inc called with invalid parameters");
+        }
 
-      expect(shouldThrow).toThrow();
-    });
-  });
+        const shouldThrow = () => {
+          compareSemver(base, wrongProposed, realeaseInfo);
+        };
+
+        expect(shouldThrow).toThrow();
+      });
+    }
+  );
 
   describe("prepatch id's", () => {
     it("returns the correct string when the proposed release type is correct", () => {

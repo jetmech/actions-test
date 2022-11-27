@@ -2,7 +2,6 @@ import path from "path";
 import { promises as fs } from "fs";
 import { ReleaseAndPrereleaseId } from "./labelHelpers";
 import semver from "semver";
-import * as core from "@actions/core";
 
 type PackageDotJSON = {
   version: string;
