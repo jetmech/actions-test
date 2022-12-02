@@ -50,11 +50,9 @@ If the package.json version is changed in the base branch after the pull request
 Refer to the following example workflow file:
 
 ```yaml
-name: Publish
+name: Check SemVer
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
     types:
@@ -70,10 +68,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Check SemVer
-      - uses: jetmech/semver-check@v1
-      - name: Install deps and build
-        run: npm ci && npm run build
-      - name: Test
-        run: npm test
-# Rest of workflow file...
+        uses: jetmech/semver-check@v1
 ```

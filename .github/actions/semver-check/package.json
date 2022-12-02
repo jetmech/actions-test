@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prepare": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
     "test": "jest",
-    "watch": "nodemon -e ts --watch src --exec 'npm run prepare'"
+    "watch": "nodemon -e ts --watch src --exec 'npm run build'",
+    "lint": "eslint"
   },
   "keywords": [],
   "author": "",
